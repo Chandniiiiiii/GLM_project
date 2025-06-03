@@ -7,10 +7,9 @@ library(patchwork)
 # install.packages('corrplot')
 library(corrplot)
 library(DataExplorer)
+library(openxlsx)
 
-# re-run data prep
-source('Data prep.r')
-
+data <- read.xlsx('data.xlsx')
 glimpse(data)
 
 #-------------------------------------------------------------------------------
@@ -18,13 +17,16 @@ glimpse(data)
 #-------------------------------------------------------------------------------
 # numerical variables
 num_vars <- c("ClaimNb", "Exposure", "VehPower", "VehAge", "DrivAge", "BonusMalus", "Density")
+
 data %>% select(all_of(num_vars)) %>%
   gather(key = "Variable", value = "Value") %>% ggplot(aes(x = Value)) +
   facet_wrap(~ Variable, scales = "free") +
   geom_histogram(bins = 30, fill = "steelblue", color = "white") + theme_minimal() +
   labs(title = "Histogram of Numeric Variables", x = NULL, y = "Count")
+
 # categorical variables
 cat_vars <- c("VehBrand", "VehGas", "Area", "Region")
+
 cat_plots <- lapply(cat_vars, function(var) {
   data %>% count(!!sym(var)) %>%
     ggplot(aes(x = reorder(!!sym(var), -n), y = n)) +
